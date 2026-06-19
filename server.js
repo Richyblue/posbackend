@@ -26,7 +26,7 @@ const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(bodyparser.json());
-app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors({ origin: 'https://posfrontend-4v9e.vercel.app' }));
 
 // Routes
 app.use('/api/auth/', authRoutes);
