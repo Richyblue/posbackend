@@ -18,7 +18,7 @@ const {
         printer:XP-80
       */
   
-      interface: 'printer:XP-80',
+      interface: 'printer:XP-80C',
   
       options: {
         timeout: 5000,
