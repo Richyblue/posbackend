@@ -11,6 +11,12 @@ console.log('DB_USERNAME:', process.env.DB_USERNAME);
 const sequelize = new Sequelize(db_name, db_username, db_password, {
     host: db_host,
     dialect: dialect,
+    pool: {
+        max: 10,
+        min: 0,
+        acquire: 30000,
+        idle: 10000,
+      },
 });
 
 module.exports = sequelize;
