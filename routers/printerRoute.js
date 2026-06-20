@@ -6,7 +6,7 @@ const printController = require('../controllers/printController')
 
 router.post(
   '/print-receipt',
-  printController.printReceipt,
+  printController.printReceipts,
 )
 
 module.exports = router

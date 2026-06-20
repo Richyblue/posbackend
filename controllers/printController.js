@@ -1,46 +1,32 @@
-const {
-  savePrintJob
-} = require(
-  '../service/printQueue'
-);
+const { printReceipt } = require('../service/printerService');
 
-exports.printReceipt =
-async (req,res)=>{
+const { savePrintJob } = require('../service/printQueue');
 
-  try{
+exports.printReceipts = async (req, res) => {
 
-    await printReceipt(
-      req.body
-    );
+  try {
+
+    await printReceipt(req.body);
 
     return res.json({
-      success:true,
-      printed:true,
-      message:
-      'Receipt printed successfully'
+      success: true,
+      printed: true,
+      message: 'Receipt printed successfully',
     });
 
-  }catch(error){
+  } catch (error) {
 
     console.error(error);
 
-    await savePrintJob(
-      req.body
-    );
+    await savePrintJob(req.body);
 
     return res.json({
-
-      success:true,
-
-      printed:false,
-
-      queued:true,
-
-      message:
-      'Printer unavailable. Receipt queued.'
-
+      success: true,
+      printed: false,
+      queued: true,
+      message: 'Printer unavailable. Receipt queued.',
     });
 
   }
 
-}
+};
