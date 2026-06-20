@@ -1,4 +1,6 @@
 const Service = require('../models/Service')
+const db =
+require('../config/offlineDb');
 
 exports.createService = async (req, res) => {
   try {
@@ -32,11 +34,35 @@ exports.getServices = async (req, res) => {
       success: true,
       services,
     })
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    })
+  } catch(error){
+
+    db.all(
+      `
+      SELECT *
+      FROM services
+      ORDER BY id DESC
+      `,
+      [],
+      (err,rows)=>{
+  
+        if(err){
+  
+          return res.status(500).json({
+            success:false,
+            message:err.message
+          });
+  
+        }
+  
+        return res.status(200).json({
+          success:true,
+          offline:true,
+          services:rows
+        });
+  
+      }
+    );
+  
   }
 }
 
@@ -55,11 +81,35 @@ exports.getService = async (req, res) => {
       success: true,
       service,
     })
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    })
+  } catch(error){
+
+    db.get(
+      `
+      SELECT *
+      FROM services
+      WHERE id = ?
+      `,
+      [req.params.id],
+      (err,row)=>{
+  
+        if(!row){
+  
+          return res.status(404).json({
+            success:false,
+            message:'Service not found'
+          });
+  
+        }
+  
+        return res.status(200).json({
+          success:true,
+          offline:true,
+          service:row
+        });
+  
+      }
+    );
+  
   }
 }
 

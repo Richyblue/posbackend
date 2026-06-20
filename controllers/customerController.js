@@ -1,4 +1,5 @@
 const Customer = require('../models/Customer')
+const db =require('../config/offlineDb');
 
 exports.createCustomer = async (req, res) => {
   try {
@@ -14,12 +15,49 @@ exports.createCustomer = async (req, res) => {
       success: true,
       customer,
     })
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    })
-  }
+  } catch(error){
+
+    db.run(
+      `
+      INSERT INTO customer_queue(
+        payload
+      )
+      VALUES(?)
+      `,
+      [
+        JSON.stringify(req.body)
+      ]
+    );
+
+    db.run(
+      `
+      INSERT INTO customers(
+        fullname,
+        phone,
+        email,
+        synced
+      )
+      VALUES(?,?,?,0)
+      `,
+      [
+        fullname,
+        phone,
+        email
+      ]
+    );
+
+    return res.status(200).json({
+
+      success:true,
+
+      offline:true,
+
+      message:
+      'Customer saved locally'
+
+    });
+
+}
 }
 
 exports.getCustomers = async (req, res) => {
@@ -32,11 +70,39 @@ exports.getCustomers = async (req, res) => {
       success: true,
       customers,
     })
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    })
+  } catch(error){
+
+    db.all(
+     `
+     SELECT *
+     FROM customers
+     ORDER BY id DESC
+     `,
+     [],
+     (err,rows)=>{
+  
+        if(err){
+  
+          return res.status(500).json({
+            success:false,
+            message:err.message
+          });
+  
+        }
+  
+        return res.status(200).json({
+  
+          success:true,
+  
+          offline:true,
+  
+          customers:rows
+  
+        });
+  
+     }
+    );
+  
   }
 }
 
@@ -55,11 +121,40 @@ exports.getCustomer = async (req, res) => {
       success: true,
       customer,
     })
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    })
+  } catch(error){
+
+    db.get(
+      `
+      SELECT *
+      FROM customers
+      WHERE id = ?
+      `,
+      [req.params.id],
+      (err,row)=>{
+  
+        if(!row){
+  
+          return res.status(404).json({
+            success:false,
+            message:
+            'Customer not found'
+          });
+  
+        }
+  
+        return res.status(200).json({
+  
+          success:true,
+  
+          offline:true,
+  
+          customer:row
+  
+        });
+  
+      }
+    );
+  
   }
 }
 

@@ -21,6 +21,11 @@ const settingRoute=require("./routers/settingRoute");
 const heldSalesRoute=require("./routers/heldSaleRoutes");
 const printRoute=require("./routers/printerRoute");
 
+const retryPrintJobs =require(
+ './service/retryPrintJobs'
+);
+const syncOfflineSales =require('./service/syncOfflineSales');
+
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -28,6 +33,20 @@ const port = process.env.PORT || 3000;
 app.use(bodyparser.json());
 app.use(cors({ origin: 'https://posfrontend-4v9e.vercel.app' }));
 
+const syncAll =
+require('./service/syncAll');
+
+(async()=>{
+
+   await syncAll();
+
+})();
+
+setInterval(async()=>{
+
+   await syncAll();
+
+},300000);
 // Routes
 app.use('/api/auth/', authRoutes);
 app.use('/api/v1/', customerRoutes);
@@ -44,6 +63,23 @@ app.use('/api/v1/', reportRoute);
 app.use('/api/v1/', settingRoute);
 app.use('/api/v1/held-sales/', heldSalesRoute),
 app.use('/api/v1/', printRoute);
+
+
+setInterval(() => {
+
+   syncOfflineSales();
+
+}, 60000);
+
+
+
+
+  
+setInterval(()=>{
+
+   retryPrintJobs();
+
+},30000);
 // Start server
 sequelize.sync().then(() => {
     console.log('Database synced');

@@ -100,10 +100,35 @@ exports.getProducts = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    return res.status(500).json({
-      success: false,
-      message: "Server error",
-    });
+      db.all(
+         `
+         SELECT *
+         FROM products
+         ORDER BY id DESC
+         `,
+         [],
+         (err,rows)=>{
+   
+            if(err){
+   
+               return res.status(500).json({
+                  success:false,
+                  message:err.message
+               });
+   
+            }
+   
+            return res.status(200).json({
+               success:true,
+               offline:true,
+               count:rows.length,
+               products:rows
+            });
+   
+         }
+      );
+   
+   
   }
 };
 
@@ -233,10 +258,23 @@ exports.searchProducts = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    return res.status(500).json({
-      success: false,
-      message: "Server error",
-    });
+    db.all(
+      `
+      SELECT *
+      FROM products
+      WHERE name LIKE ?
+      `,
+      [`%${search}%`],
+      (err,rows)=>{
+     
+         return res.status(200).json({
+           success:true,
+           offline:true,
+           products:rows
+         });
+     
+      }
+     );
   }
 };
 
@@ -283,13 +321,35 @@ exports.getProductByBarcode = async (req, res) => {
       success: true,
       product,
     });
-  } catch (error) {
-    console.error(error);
+  } catch(error){
 
-    return res.status(500).json({
-      success: false,
-      message: "Server error",
-    });
+    db.get(
+      `
+      SELECT *
+      FROM products
+      WHERE barcode = ?
+      `,
+      [req.params.barcode],
+      (err,row)=>{
+  
+        if(!row){
+  
+          return res.status(404).json({
+            success:false,
+            message:'Product not found'
+          });
+  
+        }
+  
+        return res.status(200).json({
+           success:true,
+           offline:true,
+           product:row
+        });
+  
+      }
+    );
+  
   }
 };
 

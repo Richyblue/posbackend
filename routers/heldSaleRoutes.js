@@ -29,4 +29,9 @@ router.delete(
   heldSalesController.deleteHeldSale
 );
 
+router.post(
+  '/held-sales/sync',
+  syncHeldSale
+);
+
 module.exports = router;
