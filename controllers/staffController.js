@@ -1,6 +1,6 @@
 const User = require("../models/User");
 const Staff = require("../models/Staff");
-const db =require('../config/offlineDb');
+
 exports.createStaff = async (
   req,
   res
@@ -149,43 +149,18 @@ exports.getStaff = async (
       })
   
     } catch (error) {
-
-      console.error(error);
-    
-      db.all(
-        `
-        SELECT *
-        FROM staffs
-        ORDER BY fullname ASC
-        `,
-        [],
-        (err,rows)=>{
-    
-          if(err){
-    
-            return res.status(500).json({
-    
-              success:false,
-    
-              message:err.message
-    
-            });
-    
-          }
-    
-          return res.status(200).json({
-    
-            success:true,
-    
-            offline:true,
-    
-            staffs:rows
-    
-          });
-    
-        }
-      );
-    
+  
+      console.error(error)
+  
+      return res.status(500).json({
+  
+        success: false,
+  
+        message:
+          "Server Error"
+  
+      })
+  
     }
   
   }

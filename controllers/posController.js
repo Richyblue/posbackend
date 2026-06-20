@@ -13,7 +13,6 @@ const Commission = require("../models/Commission");
 
 const LoyaltyCard = require("../models/loyaltyCard");
 const LoyaltyTransaction = require("../models/loyaltyTransaction");
-const { saveSaleOffline } =require('../service/offlineQueue');
 exports.createPOSSale = async (req, res) => {
   const transaction = await sequelize.transaction();
 
@@ -198,18 +197,6 @@ exports.createPOSSale = async (req, res) => {
           transaction,
         });
 
-        db.run(
-          `
-          UPDATE products
-          SET quantity = ?
-          WHERE id = ?
-          `,
-          [
-            product.quantity,
-            product.id
-          ]
-         );
-
         saleItems.push({
           id: product.id,
 
@@ -387,32 +374,14 @@ exports.createPOSSale = async (req, res) => {
       },
     });
   } catch (error) {
-
     await transaction.rollback();
-  
-    if (
-        error.code === 'ECONNREFUSED' ||
-        error.name === 'SequelizeConnectionError' ||
-        error.name === 'SequelizeConnectionRefusedError'
-    ) {
-  
-        await saveSaleOffline({
-          body:req.body,
-          user:req.user
-        });
-  
-        return res.status(200).json({
-          success:true,
-          offline:true,
-          message:'Sale saved offline and will sync later'
-        });
-  
-    }
-  
+
+    console.error(error);
+
     return res.status(500).json({
-        success:false,
-        message:error.message
+      success: false,
+
+      message: error.message,
     });
-  
   }
 };

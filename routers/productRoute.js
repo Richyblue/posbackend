@@ -21,7 +21,7 @@ router.post(
   router.get(
     "/products/search",
     authMiddleware,
-    authorize("admin"),
+    authorize("admin", "cashier"),
     productController.searchProducts
   );
   
